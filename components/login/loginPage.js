@@ -29,11 +29,11 @@ class LoginPage extends Component {
         axios({ method: method, url: apiURL, data: data })
             .then(res => {
                 this.props.saveProfile(res.data);
-                this.props.navigation.navigate("HomePage")
             })
             .catch(err => {
                 console.log("error", err)
             })
+            this.props.navigation.navigate("HomePage")
     }
 
     render() {
