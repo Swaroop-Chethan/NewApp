@@ -3,6 +3,9 @@ package com.myapp;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.reactnativecommunity.toolbarandroid.ReactToolbarPackage;
+import com.oblador.vectoricons.VectorIconsPackage;
+import com.swmansion.rnscreens.RNScreensPackage;
 import com.swmansion.gesturehandler.react.RNGestureHandlerPackage;
 import com.reactnativecommunity.asyncstorage.AsyncStoragePackage;
 import com.facebook.react.ReactNativeHost;
@@ -25,6 +28,9 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new ReactToolbarPackage(),
+            new VectorIconsPackage(),
+            new RNScreensPackage(),
             new RNGestureHandlerPackage(),
             new AsyncStoragePackage()
       );

@@ -25,7 +25,7 @@ class App extends Component {
   render() {
     return (
       <Provider store={store}>
-        <PersistGate>
+        <PersistGate persistor={persistor}>
             <AppContainer 
               ref={nav => { this.navigator = nav; }}
             />

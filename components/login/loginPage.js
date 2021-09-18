@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
 import { Container, Content, Icon } from 'native-base';
-import { View, TouchableOpacity, Text, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, TouchableOpacity, Text, KeyboardAvoidingView, Platform, TextInput } from 'react-native';
 import { saveProfile } from '../../storage/actions';
+import { connect } from 'react-redux';
 import axios from 'axios';
 
 class LoginPage extends Component {
@@ -18,36 +19,36 @@ class LoginPage extends Component {
         this.setState({ email })
     }
 
-    handleLogin = () =>{
+    handleLogin = () => {
         let data = {
             "username": this.state.email,
-            "platform": Platform.OS              
+            "platform": Platform.OS
         }
         const method = "POST"
         const apiURL = "https://api.hubapi.com/crm/v3/login"
-        axios({  method: method,url: apiURL, data:data})
+        axios({ method: method, url: apiURL, data: data })
             .then(res => {
                 this.props.saveProfile(res.data);
                 this.props.navigation.navigate("HomePage")
             })
             .catch(err => {
-               console.log("error", err)
+                console.log("error", err)
             })
     }
 
     render() {
         return (
             <Container>
-                <Content style={{ backgroundColor: "#231F20" }}>
-                    <View style={{ alignItems: 'center', flex: 0.8, justifyContent: 'center' }}>
-                        <Text>LoginPPage</Text>
+                <Content style={{ backgroundColor: "#231F20", flex: 1, flexDirection: "column-reverse"}}>
+                    <View style={{ alignItems: 'center', justifyContent: 'center', flex:1}}>
+                            <Text style={{ color: "green", fontSize: 20, margin:20}}>MYAPP</Text>
                     </View>
                     <View style={{
-                        elevation: 10, flex: 1.1, borderTopLeftRadius: 20, borderTopRightRadius: 20, backgroundColor: '#282b2c', justifyContent: 'space-between', flexDirection: 'column'
+                        elevation: 10, bottom: 0, flex: 1.1, borderTopLeftRadius: 20, borderTopRightRadius: 20, backgroundColor: '#282b2c', justifyContent: 'space-between', flexDirection: 'column'
                     }}>
                         <View style={{ padding: 16, backgroundColor: '#202224', borderRadius: 15, margin: 16, elevation: 10 }}>
                             <View width={"100%"}>
-                                <Text style={styles.userName_div}>
+                                <Text style={{ textAlign: 'left', color: "#fff", fontSize: 16, fontFamily: 'WorkSans-Regular' }}>
                                     Username
                                 </Text>
                                 <TouchableOpacity style={{ marginTop: 10 }}>
@@ -79,22 +80,22 @@ class LoginPage extends Component {
                                     </KeyboardAvoidingView>
                                 </TouchableOpacity>
                             </View>
-                            <View style={{ alignItems: 'center', marginBottom: 30 }}>
-                                <TouchableOpacity
-                                    disabled={this.state.disableCTA}
-                                    onPress={() => this.handleLogin()}
-                                    style={
-                                        {
-                                            width: '90%', height: 48, marginTop: 0, borderRadius: 5, alignItems: 'center', justifyContent: 'center',
-                                            backgroundColor: this.state.email
-                                                ? "#80dc00"
-                                                : "#babcbf"
-                                        }
+                        </View>
+                        <View style={{ alignItems: 'center', marginBottom: 30 }}>
+                            <TouchableOpacity
+                                disabled={this.state.disableCTA}
+                                onPress={() => this.handleLogin()}
+                                style={
+                                    {
+                                        width: '90%', height: 48, marginTop: 0, borderRadius: 5, alignItems: 'center', justifyContent: 'center',
+                                        backgroundColor: this.state.email
+                                            ? "#80dc00"
+                                            : "#babcbf"
                                     }
-                                >
-                                    <Text style={{ color: this.state.email ? 'black' : 'white', fontSize: 16 }}>Continue</Text>
-                                </TouchableOpacity>
-                            </View>
+                                }
+                            >
+                                <Text style={{ color: this.state.email ? 'black' : 'white', fontSize: 16 }}>Continue</Text>
+                            </TouchableOpacity>
                         </View>
                     </View>
                 </Content>
@@ -110,4 +111,4 @@ const mapDispatchToProps = (dispatch) => {
     };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(LoginPage)
+export default connect(null, mapDispatchToProps)(LoginPage)
