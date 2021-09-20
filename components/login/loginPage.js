@@ -1,9 +1,17 @@
 import React, { Component } from 'react'
 import { Container, Content, Icon } from 'native-base';
-import { View, TouchableOpacity, Text, KeyboardAvoidingView, Platform, TextInput } from 'react-native';
+import { View, TouchableOpacity, Text, KeyboardAvoidingView, Platform, TextInput, ToastAndroid } from 'react-native';
 import { saveProfile } from '../../storage/actions';
 import { connect } from 'react-redux';
 import axios from 'axios';
+import Styles from '../style'
+import { userData, loginData } from './userData'
+
+const RegEx = {
+    email: /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/,
+    password: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/
+
+};
 
 class LoginPage extends Component {
 
@@ -11,97 +19,176 @@ class LoginPage extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            email: ""
+            email: "",
+            password: "",
+            errorTextinput: false,
+            errorPassword: false,
+            toggleShowPass: true,
+            disableCTA: true,
+            errorTextinput: false,
+            errorPassword: false
         }
     }
 
-    onChangeEmail = (email) => {
-        this.setState({ email })
+    validateEmail = enteredValue => {
+        if (enteredValue && RegEx.email.test(enteredValue)) {
+            this.setState({
+                email: enteredValue,
+                disableCTA: true,
+                errorTextinput: false
+            });
+        } else {
+            this.setState({
+                email: enteredValue,
+                disableCTA: true,
+                errorTextinput: true
+            });
+        }
+    };
+
+    validatePassword = (pass) => {
+        if (pass.length > 0 && RegEx.password.test(pass)) {
+            this.setState({
+                password: pass,
+                showPass: true,
+                disableCTA: false,
+                errorPassword: false
+            })
+        }
+        else {
+            this.setState({
+                password: pass.substring(0, pass.length - 1),
+                showPass: true,
+                disableCTA: true,
+                errorPassword: true
+            })
+        }
     }
 
     handleLogin = () => {
-        let data = {
-            "username": this.state.email,
-            "platform": Platform.OS
-        }
-        const method = "POST"
-        const apiURL = "https://api.hubapi.com/crm/v3/login"
-        axios({ method: method, url: apiURL, data: data })
-            .then(res => {
-                this.props.saveProfile(res.data);
-            })
-            .catch(err => {
-                console.log("error", err)
-            })
+        if (this.state.email == loginData.username && this.state.password == loginData.password) {
+            this.props.saveProfile(userData);
             this.props.navigation.navigate("HomePage")
-    }
+        } else {
+            if (Platform.OS === 'android') {
+                ToastAndroid.showWithGravity(
+                    "Invalid login details",
+                    ToastAndroid.SHORT,
+                    ToastAndroid.CENTER
+                );
+            }
+        }
+}
 
-    render() {
-        return (
-            <Container>
-                <Content style={{ backgroundColor: "#231F20", flex: 1, flexDirection: "column-reverse"}}>
-                    <View style={{ alignItems: 'center', justifyContent: 'center', flex:1}}>
-                            <Text style={{ color: "green", fontSize: 20, margin:20}}>MYAPP</Text>
-                    </View>
-                    <View style={{
-                        elevation: 10, bottom: 0, flex: 1.1, borderTopLeftRadius: 20, borderTopRightRadius: 20, backgroundColor: '#282b2c', justifyContent: 'space-between', flexDirection: 'column'
-                    }}>
-                        <View style={{ padding: 16, backgroundColor: '#202224', borderRadius: 15, margin: 16, elevation: 10 }}>
-                            <View width={"100%"}>
-                                <Text style={{ textAlign: 'left', color: "#fff", fontSize: 16, fontFamily: 'WorkSans-Regular' }}>
-                                    Username
+togglePass = () => {
+    this.setState({
+        toggleShowPass: !this.state.toggleShowPass,
+        errorPassword: false
+
+    })
+}
+
+render() {
+    return (
+        <Container>
+            <Content style={Styles.loginContent}>
+                <View style={Styles.loginInner}>
+                    <Text style={Styles.loginText}>MYAPP</Text>
+                </View>
+                <View style={Styles.loginInn}>
+                    <View style={Styles.loginUsrPwd}>
+                        <View width={"100%"}>
+                            <Text style={Styles.loginUserText}>
+                                Username
                                 </Text>
-                                <TouchableOpacity style={{ marginTop: 10 }}>
-                                    <KeyboardAvoidingView
-                                        width={"100%"}
-                                        behavior="padding"
-                                        enabled
-                                        style={{ justifyContent: 'center', alignItems: 'center' }}
-                                    >
-                                        <TextInput
-                                            selectionColor={"#4d5054"}
-                                            defaultValue={this.state.email}
-                                            maxLength={256}
-                                            placeholder="Username"
-                                            autoCapitalize="none"
-                                            placeholderTextColor="grey"
-                                            editable={true}
-                                            onChangeText={email =>
-                                                this.onChangeEmail(email.toLowerCase())
-                                            }
-                                            style={
-                                                {
-                                                    paddingLeft: 15, backgroundColor: '#2e3033', color: '#fff', fontSize: 14, borderRadius: 8, borderWidth: 1, width: '100%', height: 48
-                                                    , borderColor: "#4d5054"
-                                                }
-                                            }>
+                            <TouchableOpacity style={{ marginTop: 10 }}>
+                                <KeyboardAvoidingView
+                                    width={"100%"}
+                                    behavior="padding"
+                                    enabled
+                                    style={Styles.loginKeyAvoid}
+                                >
+                                    <TextInput
+                                        selectionColor={"#4d5054"}
+                                        defaultValue={this.state.email}
+                                        maxLength={256}
+                                        placeholder="Username"
+                                        autoCapitalize="none"
+                                        placeholderTextColor="grey"
+                                        editable={true}
+                                        onChangeText={email =>
+                                            this.validateEmail(email.toLowerCase())
+                                        }
+                                        style={Styles.loginUserInp}>
 
-                                        </TextInput>
-                                    </KeyboardAvoidingView>
-                                </TouchableOpacity>
-                            </View>
-                        </View>
-                        <View style={{ alignItems: 'center', marginBottom: 30 }}>
-                            <TouchableOpacity
-                                disabled={this.state.disableCTA}
-                                onPress={() => this.handleLogin()}
-                                style={
-                                    {
-                                        width: '90%', height: 48, marginTop: 0, borderRadius: 5, alignItems: 'center', justifyContent: 'center',
-                                        backgroundColor: this.state.email
-                                            ? "#80dc00"
-                                            : "#babcbf"
-                                    }
-                                }
-                            >
-                                <Text style={{ color: this.state.email ? 'black' : 'white', fontSize: 16 }}>Continue</Text>
+                                    </TextInput>
+                                </KeyboardAvoidingView>
                             </TouchableOpacity>
+                            {this.state.errorTextinput === true &&
+                                <View>
+                                    <Text style={Styles.invalid_email}>
+                                        Invalid Email Address
+                                                </Text>
+                                </View>
+                            }
+                        </View>
+                        <View style={{}}>
+                            <View style={Styles.invalid_padding}>
+                                <View>
+                                    <Text style={Styles.password_text}>Password</Text>
+                                    <View style={Styles.password_input}>
+                                        <TextInput
+                                            style={[Styles.password_inTextLogin, { borderColor: this.state.isFocusOnPass ? '#80dc00' : '#4d5054' }]}
+                                            secureTextEntry={this.state.toggleShowPass} placeholder="Password"
+                                            placeholderTextColor="grey"
+                                            autoCapitalize="none"
+                                            selectionColor={"#4d5054"}
+                                            maxLength={32}
+                                            onChangeText={(text) => this.validatePassword(text)}
+                                        />
+                                        {this.state.showPass &&
+                                            <View style={Styles.show_pwd}>
+                                                {this.state.toggleShowPass ?
+                                                    <Icon onPress={() => { this.togglePass() }} name={'eye'} style={Styles.position_abs} />
+                                                    :
+                                                    <Icon onPress={() => { this.togglePass() }} name={'eye-off'} style={Styles.position_abs} />
+                                                }
+                                            </View>
+                                        }
+                                    </View>
+                                </View>
+
+                            </View>
+
+                            {this.state.errorPassword &&
+                                <View style={Styles.error_pwd}>
+                                    <Text style={Styles.error_password}>
+                                        Minimum 8 characters required
+                                           </Text>
+                                </View>
+                            }
                         </View>
                     </View>
-                </Content>
-            </Container>
-        )
-    }
+                    <View style={{ alignItems: 'center', marginBottom: 30 }}>
+                        <TouchableOpacity
+                            disabled={this.state.disableCTA}
+                            onPress={() => this.handleLogin()}
+                            style={[Styles.button,
+                                {
+                                    backgroundColor: !this.state.disableCTA
+                                        ? "#80dc00"
+                                        : "#babcbf"
+                                }]
+                            }
+                        >
+                            <Text style={{ color: !this.state.disableCTA ? 'black' : 'white', fontSize: 16, fontWeight: "bold" }}>Continue</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Content>
+        </Container>
+    )
+}
 
 }
 
